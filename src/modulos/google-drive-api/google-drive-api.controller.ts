@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, UploadedFiles, UseInterceptors, Query } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { GoogleDriveApiService } from './google-drive-api.service';
 
@@ -16,5 +16,12 @@ export class GoogleDriveApiController {
         }
     }
     @Get('download')
-    async downloadFile (){}
+    async downloadFile (@Query('fileId') fileId: string){
+        const response: any = await this.googleDriveApiService.getDownloadLink(fileId);
+        if(response.meta.code == 200) {
+            return response;
+        }
+        
+
+    }
 }

@@ -52,4 +52,39 @@ export class GoogleDriveApiService {
             return response;
         }
     }
+
+    public async getDownloadLink(fileId: string) {
+        const SCOPES: Array<string> = scopes();
+        const keyFilePath: string = this.configService.get('googleDriveApi.keyFilePath');
+        
+        const auth = new google.auth.GoogleAuth({
+            keyFile: keyFilePath,
+            scopes: SCOPES
+        });
+
+        const driveService = google.drive({ version: 'v3', auth });
+        await driveService.permissions.create({
+            fileId: fileId,
+            requestBody: {
+                role: 'reader',
+                type: 'anyone'
+            }
+        });
+        const result = await driveService.files.get({
+            fileId: fileId,
+            fields: 'webViewLink, webContentLink'
+        });
+        const response = {
+            meta: {
+                code: 200,
+                action: 'Download file'
+            },
+            data: {
+                webContentLink: result.data.webContentLink,
+                webViewLink: result.data.webViewLink
+            }
+        }
+        return response;
+
+    }
 }
